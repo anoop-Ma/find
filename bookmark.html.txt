@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Manage your saved bookmarks, affiliate products, and research.">
+  <title>TrendVerse AI - Bookmarks & Research</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body style="display:none">
+  <nav class="navbar navbar-expand-lg navbar-trendverse">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><i class="fas fa-chart-line"></i> TrendVerse AI</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="trends.html"><i class="fas fa-hashtag"></i> Trends</a></li>
+          <li class="nav-item"><a class="nav-link" href="hooks.html"><i class="fas fa-fire"></i> Hooks</a></li>
+          <li class="nav-item"><a class="nav-link" href="seo.html"><i class="fas fa-search-dollar"></i> SEO</a></li>
+          <li class="nav-item"><a class="nav-link" href="youtube.html"><i class="fab fa-youtube"></i> YouTube</a></li>
+          <li class="nav-item"><a class="nav-link" href="planner.html"><i class="fas fa-calendar"></i> Planner</a></li>
+          <li class="nav-item"><a class="nav-link" href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+          <li class="nav-item"><a class="nav-link active" href="bookmarks.html"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="hero-section text-center py-3">
+      <h2 class="gradient-text"><i class="fas fa-bookmark"></i> Bookmarks & Research</h2>
+      <p>Save keywords, track affiliate products, and manage your research</p>
+    </div>
+
+    <ul class="nav nav-tabs mb-4" id="bookmarkTabs" style="border-color:var(--border-color)">
+      <li class="nav-item"><a class="nav-link active" style="color:var(--text-primary)" data-bs-toggle="tab" href="#savedBookmarks">Bookmarks</a></li>
+      <li class="nav-item"><a class="nav-link" style="color:var(--text-primary)" data-bs-toggle="tab" href="#affiliates">Affiliate Research</a></li>
+    </ul>
+
+    <div class="tab-content">
+      <div class="tab-pane fade show active" id="savedBookmarks">
+        <div class="glass-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="fas fa-bookmark"></i> Saved Searches & Keywords</h5>
+            <div class="d-flex gap-2">
+              <button class="btn btn-sm btn-outline-custom" onclick="App.exportBookmarks()"><i class="fas fa-download"></i> Export</button>
+            </div>
+          </div>
+          <div id="bookmarksList"></div>
+        </div>
+      </div>
+
+      <div class="tab-pane fade" id="affiliates">
+        <div class="row g-4">
+          <div class="col-lg-5">
+            <div class="form-card glass-card aff-form">
+              <h5 class="mb-3"><i class="fas fa-plus-circle"></i> Add Product</h5>
+              <div class="mb-2">
+                <label class="form-label">Product Name *</label>
+                <input class="form-control" id="affName" placeholder="e.g., Blue Yeti Microphone">
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label">Brand</label>
+                  <input class="form-control" id="affBrand" placeholder="Brand name">
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Price ($)</label>
+                  <input class="form-control" id="affPrice" placeholder="99.99" type="number" step="0.01">
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Affiliate Link</label>
+                <input class="form-control" id="affLink" placeholder="https://">
+              </div>
+              <div class="row g-2 mb-2">
+                <div class="col-6">
+                  <label class="form-label">Rating (1-5)</label>
+                  <select class="form-select" id="affRating">
+                    <option value="1">1 ★</option>
+                    <option value="2">2 ★★</option>
+                    <option value="3" selected>3 ★★★</option>
+                    <option value="4">4 ★★★★</option>
+                    <option value="5">5 ★★★★★</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Target Audience</label>
+                  <input class="form-control" id="affAudience" placeholder="e.g., Beginners, Gamers">
+                </div>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Pros</label>
+                <textarea class="form-control" id="affPros" rows="2" placeholder="Key benefits"></textarea>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Cons</label>
+                <textarea class="form-control" id="affCons" rows="2" placeholder="Drawbacks"></textarea>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Competitors</label>
+                <input class="form-control" id="affCompetitors" placeholder="Similar products">
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Notes</label>
+                <textarea class="form-control" id="affNotes" rows="2" placeholder="Any additional notes"></textarea>
+              </div>
+              <button class="btn btn-primary-custom w-100" onclick="App.saveAffiliate(event)"><i class="fas fa-save"></i> Save Product</button>
+            </div>
+          </div>
+          <div class="col-lg-7">
+            <div class="glass-card p-4">
+              <h5 class="mb-3"><i class="fas fa-box"></i> Products</h5>
+              <div style="overflow-x:auto">
+                <table class="affiliate-table">
+                  <thead><tr><th>Product</th><th>Brand</th><th>Price</th><th>Rating</th><th>Date</th><th></th></tr></thead>
+                  <tbody id="affiliateTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

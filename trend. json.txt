@@ -1,0 +1,31 @@
+{
+  "trendingKeywords": [
+    {"keyword": "AI tools 2026", "volume": 450000, "trend": "up", "platforms": ["google", "youtube", "twitter"]},
+    {"keyword": "iPhone 18", "volume": 380000, "trend": "up", "platforms": ["google", "amazon", "youtube"]},
+    {"keyword": "remote work setup", "volume": 210000, "trend": "stable", "platforms": ["google", "pinterest", "linkedin"]},
+    {"keyword": "meditation for beginners", "volume": 185000, "trend": "up", "platforms": ["youtube", "google", "instagram"]},
+    {"keyword": "crypto trading", "volume": 320000, "trend": "down", "platforms": ["twitter", "google", "reddit"]}
+  ],
+  "contentIdeas": [
+    {"title": "10 AI Tools That Will Replace Your Entire Workflow in 2026", "type": "blog", "difficulty": "medium", "viralPotential": 85},
+    {"title": "I Tested iPhone 18 for 30 Days - Here's What Apple Won't Tell You", "type": "video", "difficulty": "hard", "viralPotential": 92},
+    {"title": "The Ultimate Remote Work Setup Under $500", "type": "listicle", "difficulty": "easy", "viralPotential": 78},
+    {"title": "5 Minute Meditation That Changed My Life", "type": "short", "difficulty": "easy", "viralPotential": 88},
+    {"title": "Why 90% of Crypto Traders Lose Money (And How to Be in the 10%)", "type": "video", "difficulty": "medium", "viralPotential": 90}
+  ],
+  "platformTrends": {
+    "youtube": ["#shorts", "reaction videos", "day in the life", "asmr", "challenges"],
+    "tiktok": ["#fyp", "dance trends", "storytime", "transitions", "sound trends"],
+    "instagram": ["reels", "carousel posts", "aesthetic photos", "story templates", "collabs"],
+    "twitter": ["hot takes", "threads", "memes", "poll questions", "trending hashtags"],
+    "reddit": ["AMA", "unpopular opinions", "TIL", "aita", "lpt"]
+  },
+  "seoData": {
+    "keywordDensity": 1.5,
+    "readabilityScore": 68,
+    "searchIntent": "Informational",
+    "competition": "Medium",
+    "evergreenScore": 72,
+    "seasonalScore": 45
+  }
+}

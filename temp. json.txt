@@ -1,0 +1,96 @@
+{
+  "blogTitles": [
+    "The Ultimate Guide to {keyword} in 2026",
+    "{keyword}: Everything You Need to Know",
+    "10 {keyword} Tips That Will Change Your Life",
+    "Why {keyword} Is the Future of {industry}",
+    "How to Master {keyword} in 30 Days",
+    "The Truth About {keyword} Nobody Talks About",
+    "5 {keyword} Myths Debunked by Experts",
+    "How {keyword} Saved My Business",
+    "The Complete {keyword} Checklist for Beginners",
+    "What They Don't Tell You About {keyword}"
+  ],
+  "youtubeTitles": [
+    "I Tried {keyword} for 30 Days - Here's What Happened",
+    "The ULTIMATE {keyword} Tutorial for Beginners",
+    "How to {keyword} Like a Pro in 2026",
+    "Stop Wasting Money on {keyword} - Do This Instead",
+    "Why {keyword} Is Going to EXPLODE This Year",
+    "How I Made $10,000 Using {keyword}",
+    "The #1 Mistake Everyone Makes with {keyword}",
+    "I Asked 100 People About {keyword} (Shocking Results)",
+    "This {keyword} Hack Will Blow Your Mind",
+    "What Your {keyword} Says About You"
+  ],
+  "instagramCaptions": [
+    "Your daily dose of {keyword} inspiration ✨",
+    "Let's talk about {keyword} 👇",
+    "Who else loves {keyword}? 🙋‍♂️",
+    "Swipe for the best {keyword} tips ➡️",
+    "Save this for when you need {keyword} help 💾",
+    "Drop a ❤️ if you agree about {keyword}",
+    "Comment your favorite {keyword} below!",
+    "This {keyword} changed my perspective. What do you think?"
+  ],
+  "hooks": {
+    "curiosity": [
+      "What happens next will surprise you",
+      "The one thing nobody tells you about",
+      "I couldn't believe my eyes when",
+      "This secret has been hiding in plain sight"
+    ],
+    "fear": [
+      "Stop doing this before it's too late",
+      "You're making a huge mistake if",
+      "This could ruin everything if you ignore it",
+      "Warning: Don't try this without knowing"
+    ],
+    "story": [
+      "I tried this for 30 days and here's my story",
+      "Let me tell you about the time I",
+      "My journey with started when",
+      "From struggling to thriving - my story"
+    ],
+    "benefit": [
+      "Do this one thing and transform your",
+      "Learn how to in just 5 minutes",
+      "The fastest way to master",
+      "Double your results with this simple trick"
+    ],
+    "emotional": [
+      "This will warm your heart",
+      "You won't believe how this made me feel",
+      "The most emotional story about",
+      "Why this matters more than you think"
+    ],
+    "myth": [
+      "5 Myths About Debunked",
+      "What Everyone Gets Wrong About",
+      "The Truth Behind Common Myths",
+      "Stop Believing These Lies About"
+    ],
+    "challenge": [
+      "Can you do this 30-day challenge?",
+      "I challenge you to try this for 7 days",
+      "The 24-hour experiment that changed everything",
+      "Try not to smile watching this challenge"
+    ],
+    "mistake": [
+      "The #1 Mistake Beginners Make with",
+      "Don't Make These 5 Mistakes with",
+      "I wasted 2 years making this mistake",
+      "The costliest mistake you can make"
+    ]
+  },
+  "ctas": [
+    "Subscribe for more {topic} content!",
+    "Hit the bell icon so you don't miss out!",
+    "Like this post if you found it helpful!",
+    "Share this with a friend who needs it!",
+    "Comment below with your thoughts!",
+    "Save this for later reference!",
+    "Follow for daily {topic} tips!",
+    "Click the link in bio to learn more!"
+  ]
+}

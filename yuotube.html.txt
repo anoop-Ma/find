@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="YouTube creator toolkit - title generator, description builder, tags, chapters and more.">
+  <title>TrendVerse AI - YouTube Creator Hub</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body style="display:none">
+  <nav class="navbar navbar-expand-lg navbar-trendverse">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><i class="fas fa-chart-line"></i> TrendVerse AI</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="trends.html"><i class="fas fa-hashtag"></i> Trends</a></li>
+          <li class="nav-item"><a class="nav-link" href="hooks.html"><i class="fas fa-fire"></i> Hooks</a></li>
+          <li class="nav-item"><a class="nav-link" href="seo.html"><i class="fas fa-search-dollar"></i> SEO</a></li>
+          <li class="nav-item"><a class="nav-link active" href="youtube.html"><i class="fab fa-youtube"></i> YouTube</a></li>
+          <li class="nav-item"><a class="nav-link" href="planner.html"><i class="fas fa-calendar"></i> Planner</a></li>
+          <li class="nav-item"><a class="nav-link" href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+          <li class="nav-item"><a class="nav-link" href="bookmarks.html"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="hero-section text-center py-3">
+      <h2 class="gradient-text"><i class="fab fa-youtube"></i> YouTube Creator Hub</h2>
+      <p>Generate optimized titles, descriptions, tags, chapters, and more for your videos</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="form-card glass-card">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="mb-0"><i class="fas fa-film"></i> Video Metadata</h5>
+            <div class="d-flex gap-2">
+              <div class="search-container" style="max-width:250px">
+                <div class="input-group" style="border-radius:var(--radius-xs);border:1px solid var(--border-color)">
+                  <input type="text" class="form-control" id="globalSearch" placeholder="Enter video topic..." style="padding:8px 6px;font-size:0.9rem">
+                </div>
+              </div>
+              <button class="btn btn-primary-custom btn-sm-custom" onclick="App.performSearch(document.getElementById('globalSearch').value || 'trending'); setTimeout(()=>App.generateYouTube(), 100)"><i class="fas fa-magic"></i> Generate</button>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Video Title</label>
+              <input class="form-control" id="ytTitle" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Thumbnail Text Overlay</label>
+              <input class="form-control" id="ytThumbnail" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer;font-size:1.1rem;font-weight:700">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Video Description</label>
+              <textarea class="form-control" id="ytDescription" rows="6" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer"></textarea>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Tags (comma separated)</label>
+              <textarea class="form-control" id="ytTags" rows="2" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Video Chapters</label>
+              <textarea class="form-control" id="ytChapters" rows="4" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer"></textarea>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Video Outline</label>
+              <textarea class="form-control" id="ytOutline" rows="4" placeholder="Generate above to see outline" style="background:var(--bg-primary)"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="sidebar-section glass-card">
+          <h5><i class="fas fa-flag-checkered"></i> Ending CTA</h5>
+          <textarea class="notes-area" id="ytOutro" rows="3" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer;min-height:80px"></textarea>
+          <button class="btn btn-sm btn-outline-custom mt-2 w-100" onclick="App.copyText(event,{dataset:{text:document.getElementById('ytOutro').value}})"><i class="far fa-copy"></i> Copy CTA</button>
+        </div>
+
+        <div class="sidebar-section glass-card">
+          <h5><i class="fas fa-thumbtack"></i> Pinned Comment</h5>
+          <textarea class="notes-area" id="ytPinned" rows="3" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer;min-height:80px"></textarea>
+          <button class="btn btn-sm btn-outline-custom mt-2 w-100" onclick="App.copyText(event,{dataset:{text:document.getElementById('ytPinned').value}})"><i class="far fa-copy"></i> Copy Comment</button>
+        </div>
+
+        <div class="sidebar-section glass-card">
+          <h5><i class="fas fa-users"></i> Community Post</h5>
+          <textarea class="notes-area" id="ytCommunity" rows="4" readonly onclick="App.copyText(event,{dataset:{text:this.value}})" style="cursor:pointer;min-height:100px"></textarea>
+          <button class="btn btn-sm btn-outline-custom mt-2 w-100" onclick="App.copyText(event,{dataset:{text:document.getElementById('ytCommunity').value}})"><i class="far fa-copy"></i> Copy Post</button>
+        </div>
+
+        <div class="sidebar-section glass-card">
+          <h5><i class="fas fa-lightbulb"></i> Shorts Ideas</h5>
+          <ul class="list-unstyled" id="shortsIdeas">
+            <li class="py-1" style="cursor:pointer;font-size:0.9rem" onclick="App.copyText(event,{dataset:{text:this.textContent.trim()}})"><i class="fas fa-video text-danger me-2"></i> 3 tips in 60 seconds</li>
+            <li class="py-1" style="cursor:pointer;font-size:0.9rem" onclick="App.copyText(event,{dataset:{text:this.textContent.trim()}})"><i class="fas fa-video text-danger me-2"></i> The #1 mistake everyone makes</li>
+            <li class="py-1" style="cursor:pointer;font-size:0.9rem" onclick="App.copyText(event,{dataset:{text:this.textContent.trim()}})"><i class="fas fa-video text-danger me-2"></i> Before vs After transformation</li>
+            <li class="py-1" style="cursor:pointer;font-size:0.9rem" onclick="App.copyText(event,{dataset:{text:this.textContent.trim()}})"><i class="fas fa-video text-danger me-2"></i> Quick hack that actually works</li>
+            <li class="py-1" style="cursor:pointer;font-size:0.9rem" onclick="App.copyText(event,{dataset:{text:this.textContent.trim()}})"><i class="fas fa-video text-danger me-2"></i> React to this trend</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+      <div class="col-12">
+        <div class="form-card glass-card">
+          <h5 class="mb-3"><i class="fas fa-list"></i> Playlist Suggestions</h5>
+          <div class="row g-2" id="playlistSuggestions">
+            <div class="col-md-4"><div class="glass p-3" style="border-radius:var(--radius-sm)"><strong>Beginners</strong><br><span class="text-muted" style="font-size:0.85rem">Start Here series</span></div></div>
+            <div class="col-md-4"><div class="glass p-3" style="border-radius:var(--radius-sm)"><strong>Advanced</strong><br><span class="text-muted" style="font-size:0.85rem">Pro tips & tutorials</span></div></div>
+            <div class="col-md-4"><div class="glass p-3" style="border-radius:var(--radius-sm)"><strong>Tools/Reviews</strong><br><span class="text-muted" style="font-size:0.85rem">Honest reviews & comparisons</span></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      App.generateYouTube();
+    });
+  </script>
+</body>
+</html>

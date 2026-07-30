@@ -1,0 +1,123 @@
+ 
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Generate viral hooks for your content. Curiosity, fear, story hooks and more.">
+  <title>TrendVerse AI - Viral Hook Generator</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body style="display:none">
+  <nav class="navbar navbar-expand-lg navbar-trendverse">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><i class="fas fa-chart-line"></i> TrendVerse AI</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="trends.html"><i class="fas fa-hashtag"></i> Trends</a></li>
+          <li class="nav-item"><a class="nav-link active" href="hooks.html"><i class="fas fa-fire"></i> Hooks</a></li>
+          <li class="nav-item"><a class="nav-link" href="seo.html"><i class="fas fa-search-dollar"></i> SEO</a></li>
+          <li class="nav-item"><a class="nav-link" href="youtube.html"><i class="fab fa-youtube"></i> YouTube</a></li>
+          <li class="nav-item"><a class="nav-link" href="planner.html"><i class="fas fa-calendar"></i> Planner</a></li>
+          <li class="nav-item"><a class="nav-link" href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+          <li class="nav-item"><a class="nav-link" href="bookmarks.html"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="hero-section text-center py-3">
+      <h2 class="gradient-text"><i class="fas fa-fire"></i> Viral Hook Generator</h2>
+      <p>Stop the scroll with curiosity-driven, emotion-triggering hooks</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="content-generator-section glass-card">
+          <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="mb-0"><i class="fas fa-magic"></i> Hooks by Category</h5>
+            <div class="search-container" style="max-width:300px">
+              <div class="input-group" style="border-radius:var(--radius-xs);border:1px solid var(--border-color)">
+                <span class="input-group-text" style="padding:0 10px;background:transparent;border:none"><i class="fas fa-search"></i></span>
+                <input type="text" class="form-control" id="globalSearch" placeholder="Enter topic..." style="padding:8px 6px;font-size:0.9rem">
+              </div>
+            </div>
+          </div>
+
+          <div class="tabs-container" id="hookTabs">
+            <button class="tab-btn active" onclick="switchHookTab(this,'curiosity')">Curiosity</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'fear')">Fear</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'story')">Story</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'benefit')">Benefit</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'emotional')">Emotional</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'myth')">Myth vs Fact</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'challenge')">Challenge</button>
+            <button class="tab-btn" onclick="switchHookTab(this,'mistake')">Mistake</button>
+          </div>
+
+          <div class="row g-3" id="hooksList">
+            <div class="col-12 text-center text-muted py-4">Select a category above</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-4">
+        <div class="sidebar-section glass-card">
+          <h5><i class="fas fa-lightbulb"></i> Post Generator</h5>
+          <div class="mb-2">
+            <label class="form-label" style="font-size:0.85rem;color:var(--text-muted)">Platform</label>
+            <select class="form-select" id="postPlatform" onchange="App.generatePost(this.value)">
+              <option value="instagram">Instagram</option>
+              <option value="twitter">X (Twitter)</option>
+              <option value="linkedin">LinkedIn</option>
+            </select>
+          </div>
+          <div id="generatedPosts">
+            <div class="text-muted" style="font-size:0.85rem">Select a platform above</div>
+          </div>
+        </div>
+
+        <div class="sidebar-section glass-card">
+          <h5><i class="fas fa-heading"></i> Title Generator</h5>
+          <div class="mb-2">
+            <label class="form-label" style="font-size:0.85rem;color:var(--text-muted)">Type</label>
+            <select class="form-select" id="titleType" onchange="App.generateTitles(this.value)">
+              <option value="blog">Blog Titles</option>
+              <option value="youtube">YouTube Titles</option>
+              <option value="shorts">Shorts Titles</option>
+            </select>
+          </div>
+          <div id="generatedTitles">
+            <div class="text-muted" style="font-size:0.85rem">Select type above</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    function switchHookTab(btn, category) {
+      document.querySelectorAll('#hookTabs .tab-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      App.generateHooks(category);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+      App.generateHooks('curiosity');
+      App.generateTitles('blog');
+      App.generatePost('instagram');
+    });
+  </script>
+</body>
+</html>

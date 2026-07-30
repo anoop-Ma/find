@@ -1,0 +1,187 @@
+    <li class="nav-item"><a class="nav-link" href="seo.html"><i class="fas fa-search-dollar"></i> SEO</a></li>
+    <li class="nav-item"><a class="nav-link" href="youtube.html"><i class="fab fa-youtube"></i> YouTube</a></li>
+    <li class="nav-item"><a class="nav-link" href="planner.html"><i class="fas fa-calendar"></i> Planner</a></li>
+    <li class="nav-item"><a class="nav-link" href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+    <li class="nav-item"><a class="nav-link" href="trends.html#links"><i class="fas fa-link"></i> Links</a></li>
+    <li class="nav-item"><a class="nav-link active" href="bookmarks.html"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+  </ul>
+  <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+</div>
+  c.style.display = !val || name.includes(val.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function renderLinksSection() {
+  const linksDiv = document.getElementById('linksSection');
+  if (!linksDiv) return;
+  const sections = [
+    {
+      name: 'Google Trends',
+      icon: 'fas fa-chart-line',
+      color: '#4285F4',
+      links: [
+        { label: 'Daily Search Trends', url: 'https://trends.google.com/trends/trendingsearches/daily', desc: "Today's top searches worldwide" },
+        { label: 'Real-Time Trends', url: 'https://trends.google.com/trends/trendingsearches/realtime', desc: 'Updated every minute' },
+        { label: 'Keyword Explorer', url: 'javascript:App.performSearch(prompt(\"Enter keyword:\")||\"trending\")', desc: 'Trend data for any keyword' },
+        { label: 'Year in Search', url: 'https://trends.google.com/trends/yis/2025', desc: 'Annual recap' },
+        { label: 'Top Charts & Stories', url: 'https://trends.google.com/trends/stories', desc: 'Most-searched people & places' },
+        { label: 'Trends by Country', url: 'https://trends.google.com/trends/explore?geo=US', desc: 'Country-specific trends' }
+      ]
+    },
+    {
+      name: 'YouTube',
+      icon: 'fab fa-youtube',
+      color: '#FF0000',
+      links: [
+        { label: 'Trending', url: 'https://www.youtube.com/feed/trending', desc: 'What\'s trending now' },
+        { label: 'Shorts', url: 'https://www.youtube.com/shorts', desc: 'Trending Shorts' },
+        { label: 'Music Charts', url: 'https://music.youtube.com/', desc: 'YouTube Music trending' },
+        { label: 'Gaming', url: 'https://www.youtube.com/gaming', desc: 'Trending gaming content' }
+      ]
+    },
+    {
+      name: 'Social Media',
+      icon: 'fas fa-share-alt',
+      color: '#1DA1F2',
+      links: [
+        { label: 'X/Twitter Explore', url: 'https://twitter.com/explore/tabs/trending', desc: 'Trending hashtags & topics' },
+        { label: 'Instagram Explore', url: 'https://www.instagram.com/explore/', desc: 'Trending photos & reels' },
+        { label: 'Instagram Reels', url: 'https://www.instagram.com/reels/', desc: 'Trending short videos' },
+        { label: 'TikTok Trending', url: 'https://www.tiktok.com/trending', desc: 'Trending on TikTok' },
+        { label: 'Reddit Popular', url: 'https://www.reddit.com/r/popular/', desc: 'Trending Reddit posts' },
+        { label: 'Reddit Rising', url: 'https://www.reddit.com/r/all/rising/', desc: 'Fastest-rising posts' },
+        { label: 'LinkedIn News', url: 'https://www.linkedin.com/feed/news/', desc: 'Trending professional news' },
+        { label: 'Pinterest Today', url: 'https://www.pinterest.com/today/', desc: 'Trending pins' }
+      ]
+    },
+    {
+      name: 'News & Media',
+      icon: 'fas fa-newspaper',
+      color: '#E85D04',
+      links: [
+        { label: 'Google News', url: 'https://news.google.com/', desc: 'Top news headlines' },
+        { label: 'Hacker News', url: 'https://news.ycombinator.com/', desc: 'Tech & startup news' },
+        { label: 'Product Hunt', url: 'https://www.producthunt.com/', desc: 'New product launches' },
+        { label: 'Medium Trending', url: 'https://medium.com/trending', desc: 'Trending articles' },
+        { label: 'IMDb Popular', url: 'https://www.imdb.com/chart/moviemeter/', desc: 'Most popular movies' },
+        { label: 'Spotify Viral 50', url: 'https://open.spotify.com/playlist/37i9dQZEVXbLiRSasKsSY9', desc: 'Viral music chart' }
+      ]
+    },
+    {
+      name: 'Shopping',
+      icon: 'fas fa-shopping-bag',
+      color: '#FF9900',
+      links: [
+        { label: 'Amazon Best Sellers', url: 'https://www.amazon.com/gp/bestsellers/', desc: 'Top-selling products' },
+        { label: 'Amazon Movers', url: 'https://www.amazon.com/gp/movers-and-shakers/', desc: 'Fastest-rising products' },
+        { label: 'Amazon New Releases', url: 'https://www.amazon.com/gp/new-releases/', desc: 'New trending products' },
+        { label: 'eBay Trending', url: 'https://www.ebay.com/trending', desc: 'Trending on eBay' },
+        { label: 'Etsy Trending', url: 'https://www.etsy.com/trending', desc: 'Trending handmade items' },
+        { label: 'Kickstarter Trending', url: 'https://www.kickstarter.com/trending', desc: 'Trending crowdfunding' }
+      ]
+    },
+    {
+      name: 'Developer & Tech',
+      icon: 'fas fa-code',
+      color: '#333333',
+      links: [
+        { label: 'GitHub Trending', url: 'https://github.com/trending', desc: 'Trending open-source repos' },
+        { label: 'GitHub Weekly', url: 'https://github.com/trending?since=weekly', desc: 'Weekly trending repos' },
+        { label: 'Stack Overflow', url: 'https://stackoverflow.com/questions?tab=trending', desc: 'Trending Q&A' },
+        { label: 'Dev.to', url: 'https://dev.to/', desc: 'Trending dev articles' },
+        { label: 'npm Trends', url: 'https://npmtrends.com/', desc: 'Trending npm packages' }
+      ]
+    },
+    {
+      name: 'Gaming',
+      icon: 'fas fa-gamepad',
+      color: '#171A21',
+      links: [
+        { label: 'Steam Top Sellers', url: 'https://store.steampowered.com/search/?filter=topsellers', desc: 'Top-selling games' },
+        { label: 'Steam New Releases', url: 'https://store.steampowered.com/search/?filter=popularnew', desc: 'New & trending games' },
+        { label: 'Twitch Directory', url: 'https://www.twitch.tv/directory', desc: 'Trending live streams' },
+        { label: 'Epic Games Store', url: 'https://store.epicgames.com/en-US/browse', desc: 'Epic Games trending' }
+      ]
+    },
+    {
+      name: 'Apps',
+      icon: 'fas fa-mobile-alt',
+      color: '#3DDC84',
+      links: [
+        { label: 'Google Play Trending', url: 'https://play.google.com/store/apps/trending', desc: 'Trending Android apps' },
+        { label: 'Apple App Store', url: 'https://www.apple.com/app-store/', desc: 'Trending iOS apps' },
+        { label: 'Chrome Extensions', url: 'https://chrome.google.com/webstore/trending', desc: 'Trending extensions' }
+      ]
+    }
+  ];
+
+  linksDiv.innerHTML = sections.map(s => `
+    <div class="mb-4">
+      <h5 class="mb-3" style="color:${s.color}"><i class="${s.icon}"></i> ${s.name}</h5>
+      <div class="row g-2">
+        ${s.links.map(l => `
+          <div class="col-md-4 col-sm-6">
+            <a href="${l.url}" target="_blank" class="glass-card d-block p-3 text-decoration-none" style="border-radius:var(--radius-sm);color:var(--text-primary);transition:var(--transition)" onmouseover="this.style.borderColor='${s.color}'" onmouseout="this.style.borderColor=''">
+              <div class="fw-medium" style="font-size:0.9rem">${l.label}</div>
+              <div class="text-muted" style="font-size:0.75rem">${l.desc}</div>
+            </a>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  const grid = document.getElementById('platformGrid');
+  grid.innerHTML = platforms.map(p => `
+    <div class="platform-card glass-card" data-name="${p.name}">
+
+    <input type="text" class="form-control" style="max-width:250px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-xs);padding:8px 14px;color:var(--text-primary)" placeholder="Search platforms..." id="platformFilter" oninput="filterPlatforms(this.value)">
+  </div>
+
+  <div class="platform-grid" id="platformGrid"></div>
+
+  <hr class="my-5" style="border-color:var(--border-color)">
+
+  <div id="linksSection" class="links-section">
+    <div class="hero-section text-center py-3" id="links">
+      <h2 class="gradient-text"><i class="fas fa-link"></i> Ultimate Platform Links</h2>
+      <p>Direct links to trending pages across every major platform — no search needed</p>
+    </div>
+    <div id="linksContent" class="text-center text-muted py-4"><i class="fas fa-spinner fa-spin"></i> Loading links...</div>
+  </div>
+</div>
+
+<footer class="footer-trendverse"><div class="container"><p class="mb-0"><small>Click any platform button to open in a new tab with your keyword.</small></p></div></footer>
+
++ Thought: 348ms
+← Edit ~\AppData\Local\Temp\opencode\TrendVerseAI\trends.html
+  });
+}
+
+function renderLinksSection() {
+  const linksDiv = document.getElementById('linksSection');
+  const linksDiv = document.getElementById('linksContent');
+  if (!linksDiv) return;
+  const sections = [
+    {
+      name: 'Google Trends',
+
+            </button>
+          </div>
+        </div>
+      `).join('');
+      renderLinksSection();
+      if (window.location.hash === '#links') {
+        setTimeout(() => document.getElementById('links')?.scrollIntoView({ behavior: 'smooth' }), 300);
+      }
+    });
+    window.addEventListener('hashchange', () => {
+      if (window.location.hash === '#links') {
+        document.getElementById('links')?.scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+  </script>
+</body>
+</html>

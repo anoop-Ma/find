@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Save and manage your content ideas, research notes, and inspirations.">
+  <title>TrendVerse AI - Notes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body style="display:none">
+  <nav class="navbar navbar-expand-lg navbar-trendverse">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><i class="fas fa-chart-line"></i> TrendVerse AI</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link" href="trends.html"><i class="fas fa-hashtag"></i> Trends</a></li>
+          <li class="nav-item"><a class="nav-link" href="hooks.html"><i class="fas fa-fire"></i> Hooks</a></li>
+          <li class="nav-item"><a class="nav-link" href="seo.html"><i class="fas fa-search-dollar"></i> SEO</a></li>
+          <li class="nav-item"><a class="nav-link" href="youtube.html"><i class="fab fa-youtube"></i> YouTube</a></li>
+          <li class="nav-item"><a class="nav-link" href="planner.html"><i class="fas fa-calendar"></i> Planner</a></li>
+          <li class="nav-item"><a class="nav-link active" href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+          <li class="nav-item"><a class="nav-link" href="bookmarks.html"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="hero-section text-center py-3">
+      <h2 class="gradient-text"><i class="fas fa-sticky-note"></i> Notes & Ideas</h2>
+      <p>Capture your thoughts, research findings, and content ideas instantly</p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <div class="form-card glass-card">
+          <h5 class="mb-3"><i class="fas fa-pen"></i> New Note</h5>
+          <textarea class="notes-area" id="noteEditor" rows="6" placeholder="Write your ideas, research notes, content inspiration..."></textarea>
+          <div class="d-flex gap-2 mt-2">
+            <button class="btn btn-primary-custom" onclick="App.saveNote()"><i class="fas fa-save"></i> Save Note</button>
+            <button class="btn btn-outline-custom" onclick="App.exportNotes()"><i class="fas fa-download"></i> Export All</button>
+          </div>
+        </div>
+
+        <div class="sidebar-section glass-card mt-3">
+          <h5><i class="fas fa-lightbulb"></i> Quick Prompts</h5>
+          <div class="sidebar-item" onclick="document.getElementById('noteEditor').value += '\n📌 Content idea: '"><i class="fas fa-pen"></i> New content idea</div>
+          <div class="sidebar-item" onclick="document.getElementById('noteEditor').value += '\n🔍 Research finding: '"><i class="fas fa-search"></i> Research finding</div>
+          <div class="sidebar-item" onclick="document.getElementById('noteEditor').value += '\n📝 Observed trend: '"><i class="fas fa-chart-line"></i> Observed trend</div>
+          <div class="sidebar-item" onclick="document.getElementById('noteEditor').value += '\n✅ Task: '"><i class="fas fa-check"></i> Task reminder</div>
+          <div class="sidebar-item" onclick="document.getElementById('noteEditor').value += '\n📎 Reference: '"><i class="fas fa-link"></i> Reference link</div>
+        </div>
+      </div>
+      <div class="col-lg-7">
+        <div class="glass-card p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="fas fa-list"></i> Saved Notes (${() => App.state.notes.length})</h5>
+            <span class="text-muted" style="font-size:0.85rem">Stored locally</span>
+          </div>
+          <div id="notesList" style="max-height:600px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+      <div class="col-12">
+        <div class="glass-card p-4">
+          <h5 class="mb-3"><i class="fas fa-folder-open"></i> Swipe File</h5>
+          <p class="text-muted" style="font-size:0.9rem">Your personal collection of inspiration, references, and examples you've saved while researching.</p>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="glass p-3" style="border-radius:var(--radius-sm);text-align:center">
+                <i class="fas fa-image fa-2x mb-2" style="color:var(--accent);opacity:0.5"></i>
+                <div style="font-size:0.85rem">Visual inspiration</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="glass p-3" style="border-radius:var(--radius-sm);text-align:center">
+                <i class="fas fa-quote-right fa-2x mb-2" style="color:var(--accent);opacity:0.5"></i>
+                <div style="font-size:0.85rem">Quotes & headlines</div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="glass p-3" style="border-radius:var(--radius-sm);text-align:center">
+                <i class="fas fa-link fa-2x mb-2" style="color:var(--accent);opacity:0.5"></i>
+                <div style="font-size:0.85rem">Useful references</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

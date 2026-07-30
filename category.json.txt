@@ -1,0 +1,58 @@
+[
+  {
+    "id": "tech",
+    "name": "Technology",
+    "icon": "fa-microchip",
+    "color": "#6C63FF",
+    "keywords": ["AI", "machine learning", "blockchain", "cybersecurity", "cloud computing", "IoT", "5G", "robotics", "quantum computing", "edge computing"]
+  },
+  {
+    "id": "business",
+    "name": "Business",
+    "icon": "fa-briefcase",
+    "color": "#FF6B6B",
+    "keywords": ["entrepreneurship", "startup", "marketing", "ecommerce", "remote work", "crypto", "investing", "real estate", "side hustle"]
+  },
+  {
+    "id": "health",
+    "name": "Health & Wellness",
+    "icon": "fa-heart-pulse",
+    "color": "#51CF66",
+    "keywords": ["mental health", "meditation", "fitness", "nutrition", "yoga", "sleep", "immunity", "weight loss", "keto"]
+  },
+  {
+    "id": "entertainment",
+    "name": "Entertainment",
+    "icon": "fa-film",
+    "color": "#FF922B",
+    "keywords": ["movies", "music", "gaming", "streaming", "netflix", "anime", "k-pop", "podcasts", "comedy"]
+  },
+  {
+    "id": "education",
+    "name": "Education",
+    "icon": "fa-graduation-cap",
+    "color": "#20C997",
+    "keywords": ["online learning", "coding", "language learning", "study tips", "career", "skills", "courses", "tutorials"]
+  },
+  {
+    "id": "lifestyle",
+    "name": "Lifestyle",
+    "icon": "fa-camera-retro",
+    "color": "#F06595",
+    "keywords": ["travel", "food", "fashion", "home decor", "DIY", "parenting", "relationships", "minimalism"]
+  },
+  {
+    "id": "science",
+    "name": "Science",
+    "icon": "fa-flask",
+    "color": "#22B8CF",
+    "keywords": ["space", "climate change", "physics", "biology", "neuroscience", "psychology", "archeology", "evolution"]
+  },
+  {
+    "id": "finance",
+    "name": "Finance",
+    "icon": "fa-coins",
+    "color": "#FCC419",
+    "keywords": ["cryptocurrency", "stocks", "trading", "budgeting", "saving", "retirement", "taxes", "passive income", "defi"]
+  }
+]

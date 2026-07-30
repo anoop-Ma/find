@@ -1,0 +1,725 @@
+const App = {
+  state: {
+    theme: localStorage.getItem('tv-theme') || 'light',
+    searchHistory: JSON.parse(localStorage.getItem('tv-search-history') || '[]'),
+    bookmarks: JSON.parse(localStorage.getItem('tv-bookmarks') || '[]'),
+    notes: JSON.parse(localStorage.getItem('tv-notes') || '[]'),
+    recentSearches: JSON.parse(localStorage.getItem('tv-recent-searches') || '[]'),
+    affiliateProducts: JSON.parse(localStorage.getItem('tv-affiliates') || '[]'),
+    contentPlans: JSON.parse(localStorage.getItem('tv-plans') || '[]'),
+    currentKeyword: '',
+    currentCategory: 'all',
+    toastQueue: []
+  },
+
+  init() {
+    this.applyTheme();
+    this.initEventListeners();
+    this.loadTrends();
+    this.loadCategories();
+    this.loadStats();
+    this.renderBookmarks();
+    this.renderNotes();
+    this.renderRecentSearches();
+    document.body.style.display = 'block';
+  },
+
+  applyTheme() {
+    document.documentElement.setAttribute('data-theme', this.state.theme);
+    const icon = document.querySelector('.theme-toggle i');
+    if (icon) icon.className = this.state.theme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+  },
+
+  toggleTheme() {
+    this.state.theme = this.state.theme === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('tv-theme', this.state.theme);
+    this.applyTheme();
+  },
+
+  initEventListeners() {
+    document.addEventListener('click', (e) => {
+      const target = e.target.closest('[data-action]');
+      if (!target) return;
+      const action = target.dataset.action;
+      if (typeof this[action] === 'function') this[action](e, target);
+    });
+
+    document.addEventListener('click', (e) => {
+      const suggestions = document.getElementById('searchSuggestions');
+      if (suggestions && !e.target.closest('.search-container')) {
+        suggestions.classList.remove('show');
+      }
+    });
+
+    const searchInput = document.getElementById('globalSearch');
+    if (searchInput) {
+      searchInput.addEventListener('input', this.debounce(() => this.handleSearchInput(), 300));
+      searchInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') this.performSearch(searchInput.value);
+      });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        const input = document.getElementById('globalSearch');
+        if (input) input.focus();
+      }
+    });
+  },
+
+  debounce(fn, delay) {
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => fn(...args), delay);
+    };
+  },
+
+  toast(message, type = 'info') {
+    const container = document.getElementById('toastContainer');
+    if (!container) return;
+    const el = document.createElement('div');
+    el.className = `toast-msg ${type}`;
+    const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+    el.innerHTML = `<i class="fas ${icons[type] || icons.info}"></i> ${message}`;
+    container.appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; setTimeout(() => el.remove(), 300); }, 3000);
+  },
+
+  async loadCategories() {
+    try {
+      const res = await fetch('data/categories.json');
+      const categories = await res.json();
+      const grid = document.getElementById('categoryGrid');
+      if (!grid) return;
+      grid.innerHTML = categories.map(c => `
+        <div class="category-card glass-card" data-action="filterCategory" data-category="${c.id}" style="border-top: 3px solid ${c.color}">
+          <div class="cat-icon" style="color:${c.color}"><i class="fas ${c.icon}"></i></div>
+          <div class="cat-name">${c.name}</div>
+        </div>
+      `).join('');
+    } catch (e) { console.warn('Categories load skipped'); }
+  },
+
+  async loadTrends() {
+    try {
+      const res = await fetch('data/mock-trends.json');
+      const data = await res.json();
+      this.renderTrendingKeywords(data.trendingKeywords);
+      this.renderContentOpportunities(data.contentIdeas);
+    } catch (e) { console.warn('Trends load skipped'); }
+  },
+
+  renderTrendingKeywords(keywords) {
+    const container = document.getElementById('trendingKeywords');
+    if (!container) return;
+    container.innerHTML = keywords.map((k, i) => `
+      <div class="trend-card glass-card fade-in" style="animation-delay:${i * 0.1}s" data-action="selectKeyword" data-keyword="${k.keyword}">
+        <div class="trend-rank">#${i + 1}</div>
+        <div class="trend-info">
+          <div class="trend-keyword">${k.keyword}</div>
+          <div class="trend-meta">${(k.volume / 1000).toFixed(0)}K searches/mo</div>
+        </div>
+        <span class="trend-badge ${k.trend}"><i class="fas fa-arrow-${k.trend === 'up' ? 'up' : k.trend === 'down' ? 'down' : 'right'}"></i> ${k.trend}</span>
+      </div>
+    `).join('');
+  },
+
+  renderContentOpportunities(ideas) {
+    const container = document.getElementById('contentOpportunities');
+    if (!container) return;
+    container.innerHTML = ideas.map(i => `
+      <div class="content-item d-flex align-items-center justify-content-between p-3 glass-card mb-2 fade-in" style="cursor:pointer" data-action="copyText" data-text="${i.title}">
+        <div>
+          <div style="font-weight:500;font-size:0.95rem">${i.title}</div>
+          <span class="opportunity-badge ${i.difficulty === 'easy' ? 'high' : i.difficulty === 'medium' ? 'medium' : 'low'}">${i.difficulty}</span>
+          <span class="opportunity-badge high"><i class="fas fa-fire"></i> ${i.viralPotential}% viral</span>
+        </div>
+        <button class="btn btn-sm btn-outline-custom"><i class="far fa-copy"></i></button>
+      </div>
+    `).join('');
+  },
+
+  loadStats() {
+    const counters = document.querySelectorAll('.stat-number');
+    counters.forEach(c => {
+      const target = parseInt(c.dataset.count) || 0;
+      let current = 0;
+      const step = Math.ceil(target / 40);
+      const interval = setInterval(() => {
+        current += step;
+        if (current >= target) { current = target; clearInterval(interval); }
+        c.textContent = current.toLocaleString();
+      }, 30);
+    });
+  },
+
+  filterCategory(e, target) {
+    const category = target.dataset.category;
+    this.state.currentCategory = category;
+    document.querySelectorAll('.category-card').forEach(c => c.style.opacity = category === 'all' || c.dataset.category === category ? '1' : '0.4');
+    this.toast(`Showing ${target.querySelector('.cat-name')?.textContent || category} trends`, 'info');
+  },
+
+  handleSearchInput() {
+    const input = document.getElementById('globalSearch');
+    const suggestions = document.getElementById('searchSuggestions');
+    if (!input || !suggestions) return;
+    const val = input.value.trim();
+    if (val.length < 2) { suggestions.classList.remove('show'); return; }
+    const mock = ['trending', 'viral', 'how to', 'best', 'top 10', 'review', 'tutorial', 'guide', 'tips', 'ideas']
+      .filter(s => s.includes(val.toLowerCase()));
+    suggestions.innerHTML = mock.map(s => `<div class="suggestion-item" data-action="selectSuggestion" data-keyword="${s}"><i class="fas fa-search"></i> ${s}</div>`).join('');
+    suggestions.classList.add('show');
+  },
+
+  selectSuggestion(e, target) {
+    const keyword = target.dataset.keyword;
+    document.getElementById('globalSearch').value = keyword;
+    document.getElementById('searchSuggestions').classList.remove('show');
+    this.performSearch(keyword);
+  },
+
+  selectKeyword(e, target) {
+    const keyword = target.dataset.keyword;
+    this.performSearch(keyword);
+  },
+
+  performSearch(keyword) {
+    if (!keyword || keyword.trim().length < 1) return;
+    keyword = keyword.trim();
+    this.state.currentKeyword = keyword;
+    const input = document.getElementById('globalSearch');
+    if (input) input.value = keyword;
+    document.getElementById('searchSuggestions')?.classList.remove('show');
+
+    this.addToRecent(keyword);
+    this.showSearchResults(keyword);
+    this.toast(`Searching: "${keyword}"`, 'info');
+  },
+
+  addToRecent(keyword) {
+    this.state.recentSearches = this.state.recentSearches.filter(s => s !== keyword);
+    this.state.recentSearches.unshift(keyword);
+    if (this.state.recentSearches.length > 20) this.state.recentSearches.pop();
+    localStorage.setItem('tv-recent-searches', JSON.stringify(this.state.recentSearches));
+    this.renderRecentSearches();
+  },
+
+  renderRecentSearches() {
+    const container = document.getElementById('recentSearches');
+    if (!container) return;
+    if (this.state.recentSearches.length === 0) {
+      container.innerHTML = '<div class="text-muted" style="font-size:0.85rem">No recent searches</div>';
+      return;
+    }
+    container.innerHTML = this.state.recentSearches.map(s =>
+      `<div class="sidebar-item" data-action="performSearch" data-keyword="${s}"><i class="fas fa-history"></i> ${s}</div>`
+    ).join('');
+  },
+
+  showSearchResults(keyword) {
+    const resultsDiv = document.getElementById('searchResults');
+    if (!resultsDiv) return;
+    resultsDiv.style.display = 'block';
+    resultsDiv.innerHTML = `
+      <div class="glass-card p-4 fade-in">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h4 class="mb-0"><i class="fas fa-search text-accent"></i> Results for "${keyword}"</h4>
+          <button class="btn btn-sm btn-outline-custom" data-action="closeResults"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="row g-3">
+          <div class="col-md-6">
+            <div class="glass p-3" style="border-radius:var(--radius-sm)">
+              <h6 class="text-muted mb-2"><i class="fas fa-tags"></i> Related Searches</h6>
+              <div>${['vs', 'tips', 'ideas', 'review', 'best', 'cheap', 'price', 'how to'].map(t => `<span class="tag" data-action="performSearch" data-keyword="${keyword} ${t}" style="cursor:pointer">${keyword} ${t}</span>`).join('')}</div>
+            </div>
+            <div class="glass p-3 mt-2" style="border-radius:var(--radius-sm)">
+              <h6 class="text-muted mb-2"><i class="fas fa-lightbulb"></i> Content Ideas</h6>
+              <ul class="list-unstyled">
+                <li class="py-1" style="cursor:pointer" data-action="copyText" data-text="The Ultimate Guide to ${keyword} in 2026">📝 The Ultimate Guide to ${keyword} in 2026</li>
+                <li class="py-1" style="cursor:pointer" data-action="copyText" data-text="10 ${keyword} Tips Nobody Talks About">📝 10 ${keyword} Tips Nobody Talks About</li>
+                <li class="py-1" style="cursor:pointer" data-action="copyText" data-text="I Tried ${keyword} for 30 Days">📝 I Tried ${keyword} for 30 Days</li>
+                <li class="py-1" style="cursor:pointer" data-action="copyText" data-text="Why ${keyword} Is the Future">📝 Why ${keyword} Is the Future</li>
+              </ul>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="glass p-3" style="border-radius:var(--radius-sm)">
+              <h6 class="text-muted mb-2"><i class="fas fa-chart-bar"></i> SEO Analysis</h6>
+              <div class="mb-1 d-flex justify-content-between"><span>Search Volume</span><span class="fw-bold">${Math.floor(Math.random() * 500 + 50)}K/mo</span></div>
+              <div class="mb-1 d-flex justify-content-between"><span>Competition</span><span class="opportunity-badge medium">Medium</span></div>
+              <div class="mb-1 d-flex justify-content-between"><span>Intent</span><span>Informational</span></div>
+              <div class="mb-1 d-flex justify-content-between"><span>Evergreen Score</span><span class="fw-bold" style="color:var(--success)">${Math.floor(Math.random() * 30 + 60)}%</span></div>
+              <div class="mb-1 d-flex justify-content-between"><span>Viral Potential</span><span class="fw-bold" style="color:var(--warning)">${Math.floor(Math.random() * 40 + 50)}%</span></div>
+              <div class="progress-tracker mt-2"><div class="progress-fill" style="width:${Math.floor(Math.random() * 40 + 50)}%"></div></div>
+            </div>
+            <div class="glass p-3 mt-2" style="border-radius:var(--radius-sm)">
+              <h6 class="text-muted mb-2"><i class="fas fa-globe"></i> Open on Platforms</h6>
+              <div class="d-flex gap-2 flex-wrap">
+                <a href="https://www.google.com/search?q=${encodeURIComponent(keyword)}" target="_blank" class="btn btn-sm btn-outline-custom"><i class="fab fa-google"></i> Google</a>
+                <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}" target="_blank" class="btn btn-sm btn-outline-custom"><i class="fab fa-youtube"></i> YouTube</a>
+                <a href="https://twitter.com/search?q=${encodeURIComponent(keyword)}" target="_blank" class="btn btn-sm btn-outline-custom"><i class="fab fa-twitter"></i> X</a>
+                <a href="https://www.tiktok.com/search?q=${encodeURIComponent(keyword)}" target="_blank" class="btn btn-sm btn-outline-custom"><i class="fab fa-tiktok"></i> TikTok</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+    resultsDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  },
+
+  closeResults() {
+    const el = document.getElementById('searchResults');
+    if (el) { el.style.display = 'none'; el.innerHTML = ''; }
+  },
+
+  async openPlatform(e, target) {
+    const platform = target.dataset.platform;
+    const keyword = this.state.currentKeyword || 'trending';
+    const urls = {
+      'google': `https://www.google.com/search?q=${encodeURIComponent(keyword)}`,
+      'youtube': `https://www.youtube.com/results?search_query=${encodeURIComponent(keyword)}`,
+      'twitter': `https://twitter.com/search?q=${encodeURIComponent(keyword)}`,
+      'instagram': `https://www.instagram.com/explore/search/keyword/?q=${encodeURIComponent(keyword)}`,
+      'tiktok': `https://www.tiktok.com/search?q=${encodeURIComponent(keyword)}`,
+      'reddit': `https://www.reddit.com/search/?q=${encodeURIComponent(keyword)}`,
+      'linkedin': `https://www.linkedin.com/search/results/all/?keywords=${encodeURIComponent(keyword)}`,
+      'pinterest': `https://www.pinterest.com/search/pins/?q=${encodeURIComponent(keyword)}`,
+      'facebook': `https://www.facebook.com/search/top?q=${encodeURIComponent(keyword)}`,
+      'amazon': `https://www.amazon.com/s?k=${encodeURIComponent(keyword)}`,
+      'etsy': `https://www.etsy.com/search?q=${encodeURIComponent(keyword)}`,
+      'ebay': `https://www.ebay.com/sch/i.html?_nkw=${encodeURIComponent(keyword)}`,
+      'aliexpress': `https://www.aliexpress.com/wholesale?SearchText=${encodeURIComponent(keyword)}`,
+      'temu': `https://www.temu.com/search_result.html?search_key=${encodeURIComponent(keyword)}`,
+      'shopify': `https://www.google.com/search?q=${encodeURIComponent(keyword)}+site%3Ashopify.com`,
+      'producthunt': `https://www.producthunt.com/search?q=${encodeURIComponent(keyword)}`,
+      'hackernews': `https://hn.algolia.com/?q=${encodeURIComponent(keyword)}`,
+      'github': `https://github.com/trending`,
+      'medium': `https://medium.com/search?q=${encodeURIComponent(keyword)}`,
+      'devto': `https://dev.to/search?q=${encodeURIComponent(keyword)}`,
+      'stackoverflow': `https://stackoverflow.com/search?q=${encodeURIComponent(keyword)}`,
+      'behance': `https://www.behance.net/search/projects?search=${encodeURIComponent(keyword)}`,
+      'dribbble': `https://dribbble.com/search/${encodeURIComponent(keyword)}`,
+      'imdb': `https://www.imdb.com/find?q=${encodeURIComponent(keyword)}`,
+      'spotify': `https://open.spotify.com/search/${encodeURIComponent(keyword)}`,
+      'applepodcasts': `https://podcasts.apple.com/search?term=${encodeURIComponent(keyword)}`,
+      'twitch': `https://www.twitch.tv/search?term=${encodeURIComponent(keyword)}`,
+      'steam': `https://store.steampowered.com/search/?term=${encodeURIComponent(keyword)}`,
+      'googleplay': `https://play.google.com/store/search?q=${encodeURIComponent(keyword)}`,
+      'appstore': `https://www.apple.com/search/${encodeURIComponent(keyword)}`,
+      'quora': `https://www.quora.com/search?q=${encodeURIComponent(keyword)}`,
+      'googletrends': `https://trends.google.com/trends/explore?q=${encodeURIComponent(keyword)}`,
+      'googlenews': `https://news.google.com/search?q=${encodeURIComponent(keyword)}`,
+      'youtubetrending': `https://www.youtube.com/feed/trending`,
+      'youtubeshorts': `https://www.youtube.com/shorts`,
+      'explore': `https://twitter.com/explore/tabs/trending`,
+      'redditpopular': `https://www.reddit.com/r/popular/`,
+      'etsytrending': `https://www.etsy.com/trending`,
+      'amazonbestsellers': `https://www.amazon.com/gp/bestsellers/`,
+      'shopifystore': `https://www.google.com/search?q=${encodeURIComponent(keyword)}+site%3A.myshopify.com`
+    };
+    const url = urls[platform] || `https://www.google.com/search?q=${encodeURIComponent(keyword)}`;
+    window.open(url, '_blank');
+    this.toast(`Opened ${platform} for "${keyword}"`, 'success');
+  },
+
+  copyText(e, target) {
+    const text = target.dataset.text || target.closest('[data-text]')?.dataset.text;
+    if (!text) return;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(() => {
+        this.toast('Copied to clipboard!', 'success');
+      }).catch(() => {
+        this.fallbackCopy(text);
+      });
+    } else {
+      this.fallbackCopy(text);
+    }
+  },
+
+  fallbackCopy(text) {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    this.toast('Copied to clipboard!', 'success');
+  },
+
+  addBookmark(e, target) {
+    const keyword = this.state.currentKeyword || target.dataset.keyword || 'untitled';
+    if (this.state.bookmarks.some(b => b.keyword === keyword)) {
+      this.toast('Already bookmarked!', 'error');
+      return;
+    }
+    this.state.bookmarks.unshift({ keyword, date: new Date().toISOString(), notes: '' });
+    localStorage.setItem('tv-bookmarks', JSON.stringify(this.state.bookmarks));
+    this.renderBookmarks();
+    this.toast(`Bookmarked "${keyword}"`, 'success');
+  },
+
+  removeBookmark(e, target) {
+    const keyword = target.dataset.keyword;
+    this.state.bookmarks = this.state.bookmarks.filter(b => b.keyword !== keyword);
+    localStorage.setItem('tv-bookmarks', JSON.stringify(this.state.bookmarks));
+    this.renderBookmarks();
+    this.toast('Bookmark removed', 'info');
+  },
+
+  renderBookmarks() {
+    const container = document.getElementById('bookmarksList');
+    if (!container) return;
+    if (this.state.bookmarks.length === 0) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-bookmark"></i><p>No bookmarks yet. Search for keywords and bookmark them!</p></div>';
+      return;
+    }
+    container.innerHTML = this.state.bookmarks.map(b => `
+      <div class="bookmark-item fade-in">
+        <div>
+          <div class="bookmark-title"><i class="fas fa-bookmark text-accent"></i> ${b.keyword}</div>
+          <div class="bookmark-meta">${new Date(b.date).toLocaleDateString()}</div>
+        </div>
+        <div class="bookmark-actions">
+          <button class="btn btn-sm btn-outline-custom" data-action="performSearch" data-keyword="${b.keyword}"><i class="fas fa-search"></i></button>
+          <button class="btn btn-sm btn-danger-custom" data-action="removeBookmark" data-keyword="${b.keyword}"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+  },
+
+  saveNote() {
+    const textarea = document.getElementById('noteEditor');
+    if (!textarea) return;
+    const text = textarea.value.trim();
+    if (!text) { this.toast('Write something first!', 'error'); return; }
+    this.state.notes.unshift({ text, date: new Date().toISOString(), id: Date.now() });
+    localStorage.setItem('tv-notes', JSON.stringify(this.state.notes));
+    textarea.value = '';
+    this.renderNotes();
+    this.toast('Note saved!', 'success');
+  },
+
+  deleteNote(e, target) {
+    const id = parseInt(target.dataset.id);
+    this.state.notes = this.state.notes.filter(n => n.id !== id);
+    localStorage.setItem('tv-notes', JSON.stringify(this.state.notes));
+    this.renderNotes();
+    this.toast('Note deleted', 'info');
+  },
+
+  renderNotes() {
+    const container = document.getElementById('notesList');
+    if (!container) return;
+    if (this.state.notes.length === 0) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-sticky-note"></i><p>No notes yet. Start writing!</p></div>';
+      return;
+    }
+    container.innerHTML = this.state.notes.map(n => `
+      <div class="bookmark-item fade-in">
+        <div style="flex:1">
+          <div style="font-size:0.9rem;white-space:pre-wrap">${this.escapeHtml(n.text)}</div>
+          <div class="bookmark-meta mt-1">${new Date(n.date).toLocaleDateString()} ${new Date(n.date).toLocaleTimeString()}</div>
+        </div>
+        <button class="btn btn-sm btn-danger-custom" data-action="deleteNote" data-id="${n.id}"><i class="fas fa-trash"></i></button>
+      </div>
+    `).join('');
+  },
+
+  escapeHtml(text) {
+    const d = document.createElement('div');
+    d.textContent = text;
+    return d.innerHTML;
+  },
+
+  generateTitles(type) {
+    const keyword = this.state.currentKeyword || 'trending topic';
+    const templates = {
+      blog: [
+        `The Ultimate Guide to ${keyword} in 2026`,
+        `${keyword}: Everything You Need to Know`,
+        `10 ${keyword} Tips Nobody Talks About`,
+        `Why ${keyword} Is the Future`,
+        `How to Master ${keyword} in 30 Days`,
+        `The Truth About ${keyword}`,
+        `5 ${keyword} Myths Debunked`,
+        `The Complete ${keyword} Checklist`,
+        `How ${keyword} Changed My Life`,
+        `${keyword} for Beginners: A Step-by-Step Guide`
+      ],
+      youtube: [
+        `I Tried ${keyword} for 30 Days - Here's What Happened`,
+        `The ULTIMATE ${keyword} Tutorial`,
+        `How to ${keyword} Like a Pro in 2026`,
+        `Stop Wasting Money on ${keyword}`,
+        `Why ${keyword} Is Going to EXPLODE`,
+        `How I Made $10,000 Using ${keyword}`,
+        `The #1 Mistake Everyone Makes with ${keyword}`,
+        `This ${keyword} Hack Will Blow Your Mind`,
+        `${keyword} Challenge: Can You Do It?`,
+        `The Real Cost of ${keyword}`
+      ],
+      shorts: [
+        `${keyword} in 60 Seconds 🔥`,
+        `The ${keyword} Secret Nobody Knows`,
+        `Try This ${keyword} Hack Today`,
+        `${keyword} Hack That Actually Works`,
+        `3 ${keyword} Tips in 60s`,
+        `You're Doing ${keyword} Wrong`,
+        `The Easiest ${keyword} Trick`,
+        `This ${keyword} Tip Changed Everything`
+      ]
+    };
+    const titles = templates[type] || templates.blog;
+    const container = document.getElementById('generatedTitles');
+    if (!container) return;
+    container.innerHTML = titles.map(t =>
+      `<div class="generated-item"><span>${t}</span><button class="copy-btn" data-action="copyText" data-text="${t}"><i class="far fa-copy"></i> Copy</button></div>`
+    ).join('');
+  },
+
+  generateHooks(category) {
+    const mockHooks = {
+      curiosity: ['What happens next will surprise you', 'The one thing nobody tells you about', 'I couldn\'t believe my eyes when I saw this', 'This secret has been hiding in plain sight', 'The truth about this will shock you'],
+      fear: ['Stop doing this before it\'s too late', 'You\'re making a huge mistake if you ignore this', 'This could ruin everything if you\'re not careful', 'Warning: Don\'t try this at home', 'The danger nobody warned you about'],
+      story: ['I tried this for 30 days and here\'s what happened', 'Let me tell you about the time I almost gave up', 'My journey from zero to hero with this one trick', 'From struggling to thriving - my story', 'How I went from broke to successful'],
+      benefit: ['Do this one thing and transform your life', 'Learn how to master this in just 5 minutes', 'The fastest way to get results', 'Double your productivity with this simple trick', 'Save hours of work with this method'],
+      emotional: ['This will warm your heart', 'You won\'t believe how this made me feel', 'The most emotional story you\'ll hear today', 'Why this matters more than you think', 'A story that will change your perspective'],
+      myth: ['5 Myths About This Debunked', 'What Everyone Gets Wrong', 'The Truth Behind Common Misconceptions', 'Stop Believing These Lies', 'Science Says You\'re Wrong About This'],
+      challenge: ['Can You Do This 30-Day Challenge?', 'I Challenge You to Try This for 7 Days', 'The 24-Hour Experiment That Changed Everything', 'Try Not to Smile Challenge', 'The Ultimate Test of Your Skills'],
+      mistake: ['The #1 Mistake Beginners Make', 'Don\'t Make These 5 Mistakes', 'I Wasted 2 Years Making This Mistake', 'The Costliest Mistake You Can Make', 'Avoid These Common Pitfalls']
+    };
+    const hooks = mockHooks[category] || Object.values(mockHooks).flat();
+    const container = document.getElementById('hooksList');
+    if (!container) return;
+    container.innerHTML = hooks.map(h =>
+      `<div class="hook-card"><div class="hook-category"><i class="fas fa-fire"></i> ${category || 'Hook'}</div><div class="hook-text">${h}</div><div class="mt-2"><button class="btn btn-sm btn-outline-custom" data-action="copyText" data-text="${h}"><i class="far fa-copy"></i> Copy</button></div></div>`
+    ).join('');
+  },
+
+  generatePost(type) {
+    const keyword = this.state.currentKeyword || 'trending';
+    const posts = {
+      instagram: [
+        `✨ Your daily dose of ${keyword} inspiration\n\nSwipe for tips ➡️\n\nSave this for later 💾\n\nComment your thoughts below 👇\n\n#${keyword.replace(/\s+/g, '')} #trending #viral`,
+        `🔥 Let's talk about ${keyword}\n\nWho else loves this? 🙋‍♂️\n\nDrop a ❤️ if you agree\n\nFollow for more daily content!`,
+        `📌 ${keyword} tips that actually work\n\n1. Start small\n2. Stay consistent\n3. Track progress\n4. Adjust as needed\n\nWhich tip is your favorite? 👇`
+      ],
+      twitter: [
+        `${keyword} is changing everything right now.\n\nHere's what you need to know:\n\n1. It's growing fast\n2. Early adopters win\n3. Don't wait too long\n\nShare this if you agree.`,
+        `Hot take: ${keyword} will be the biggest trend of 2026.\n\nHere's why 👇\n\n🧵 A thread:`,
+        `I spent 30 days studying ${keyword}.\n\nHere are 5 things I learned:\n\n1/`
+      ],
+      linkedin: [
+        `The ${keyword} landscape is evolving rapidly.\n\nHere are my key insights from studying this trend:\n\n1. Adapt or fall behind\n2. Focus on value creation\n3. Build genuine connections\n\nWhat's your take? 👇`,
+        `I've been analyzing ${keyword} for the past quarter.\n\nThe results are fascinating.\n\nKey takeaway: Those who embrace change will thrive.\n\n#${keyword.replace(/\s+/g, '')} #Trends2026 #Innovation`
+      ]
+    };
+    const content = posts[type] || posts.instagram;
+    const container = document.getElementById('generatedPosts');
+    if (!container) return;
+    container.innerHTML = content.map(p =>
+      `<div class="generated-item"><span style="white-space:pre-wrap;font-size:0.9rem">${p}</span><button class="copy-btn" data-action="copyText" data-text="${p}"><i class="far fa-copy"></i> Copy</button></div>`
+    ).join('');
+  },
+
+  generateSEO() {
+    const keyword = this.state.currentKeyword || 'trending topic';
+    document.getElementById('seoMetaTitle').value = `The Ultimate Guide to ${keyword} in 2026 | Complete Resource`;
+    document.getElementById('seoMetaDesc').value = `Discover everything about ${keyword} in 2026. Expert tips, hidden secrets, and proven strategies to master ${keyword} and stay ahead of the competition.`;
+    document.getElementById('seoUrlSlug').value = keyword.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') + '-guide-2026';
+    document.getElementById('seoKeywords').value = `${keyword}, ${keyword} tips, ${keyword} guide, best ${keyword}, ${keyword} 2026, ${keyword} strategies, learn ${keyword}`;
+    document.getElementById('seoHeadings').value = `H1: The Ultimate Guide to ${keyword}\nH2: What Is ${keyword}?\nH2: Why ${keyword} Matters in 2026\nH3: Key Benefits\nH2: Getting Started with ${keyword}\nH3: Step 1: Research\nH3: Step 2: Implementation\nH2: Advanced Tips\nH2: Frequently Asked Questions`;
+    document.getElementById('seoSchema').value = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": `The Ultimate Guide to ${keyword}`,
+      "description": `Complete guide about ${keyword}`,
+      "datePublished": new Date().toISOString().split('T')[0],
+      "author": { "@type": "Person", "name": "TrendVerse AI" }
+    }, null, 2);
+    document.getElementById('seoAltText').value = `${keyword} guide illustration, ${keyword} tips infographic, ${keyword} comparison chart`;
+    const readability = Math.floor(Math.random() * 30 + 55);
+    document.getElementById('seoReadability').textContent = readability + '%';
+    document.getElementById('seoReadabilityBar').style.width = readability + '%';
+    document.getElementById('seoIntent').textContent = ['Informational', 'Commercial', 'Transactional', 'Navigational'][Math.floor(Math.random() * 4)];
+    this.toast('SEO fields generated!', 'success');
+  },
+
+  generateYouTube() {
+    const keyword = this.state.currentKeyword || 'trending topic';
+    document.getElementById('ytTitle').value = `The ULTIMATE ${keyword} Tutorial for Beginners in 2026`;
+    document.getElementById('ytThumbnail').value = `${keyword.toUpperCase()} 2026 🔥 | THE TRUTH`;
+    document.getElementById('ytDescription').value = `🚀 In this video, I'll show you everything you need to know about ${keyword} in 2026.\n\n📌 What you'll learn:\n00:00 - Introduction\n01:30 - What is ${keyword}?\n05:00 - Getting Started\n10:00 - Pro Tips\n15:00 - Common Mistakes\n18:00 - Final Thoughts\n\n🔔 Subscribe for more!\n👍 Like if this helped!`;
+    document.getElementById('ytTags').value = `${keyword}, ${keyword} 2026, ${keyword} tutorial, ${keyword} for beginners, how to ${keyword}, ${keyword} guide, ${keyword} tips, best ${keyword}, learn ${keyword}, ${keyword} explained`;
+    document.getElementById('ytChapters').value = `00:00 - Intro\n01:30 - What is ${keyword}?\n05:00 - Getting Started\n10:00 - Advanced Tips\n15:00 - Common Mistakes\n18:00 - Conclusion`;
+    document.getElementById('ytOutro').value = `👍 If you found this helpful, please LIKE and SUBSCRIBE!\n💬 Comment: What's your biggest challenge with ${keyword}?\n🔔 Hit the bell for more content like this!`;
+    document.getElementById('ytPinned').value = `What's your experience with ${keyword}? Drop a comment below! 👇 Don't forget to check out the timestamp for the section you need most.`;
+    document.getElementById('ytCommunity').value = `📍 Quick Poll: How familiar are you with ${keyword}?\n\nA) Complete beginner 🤔\nB) Have some experience 😐\nC) Pretty advanced 😎\nD) Expert level 🏆\n\nLet me know in the comments! 👇`;
+    this.toast('YouTube fields generated!', 'success');
+  },
+
+  saveAffiliate(e) {
+    const name = document.getElementById('affName')?.value?.trim();
+    if (!name) { this.toast('Enter a product name', 'error'); return; }
+    const product = {
+      id: Date.now(),
+      name,
+      brand: document.getElementById('affBrand')?.value?.trim() || '',
+      price: document.getElementById('affPrice')?.value?.trim() || '',
+      pros: document.getElementById('affPros')?.value?.trim() || '',
+      cons: document.getElementById('affCons')?.value?.trim() || '',
+      competitors: document.getElementById('affCompetitors')?.value?.trim() || '',
+      audience: document.getElementById('affAudience')?.value?.trim() || '',
+      notes: document.getElementById('affNotes')?.value?.trim() || '',
+      link: document.getElementById('affLink')?.value?.trim() || '',
+      rating: document.getElementById('affRating')?.value || 3,
+      date: new Date().toISOString()
+    };
+    this.state.affiliateProducts.unshift(product);
+    localStorage.setItem('tv-affiliates', JSON.stringify(this.state.affiliateProducts));
+    this.renderAffiliates();
+    document.querySelectorAll('.aff-form input, .aff-form textarea, .aff-form select').forEach(el => el.value = '');
+    this.toast(`Saved "${name}"`, 'success');
+  },
+
+  renderAffiliates() {
+    const tbody = document.getElementById('affiliateTableBody');
+    if (!tbody) return;
+    if (this.state.affiliateProducts.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4">No products yet. Add your first affiliate product!</td></tr>';
+      return;
+    }
+    tbody.innerHTML = this.state.affiliateProducts.map(p => `
+      <tr>
+        <td class="fw-medium">${this.escapeHtml(p.name)}</td>
+        <td>${this.escapeHtml(p.brand)}</td>
+        <td>$${this.escapeHtml(p.price) || '—'}</td>
+        <td>${'★'.repeat(Math.min(5, parseInt(p.rating) || 0))}${'☆'.repeat(5 - Math.min(5, parseInt(p.rating) || 0))}</td>
+        <td>${new Date(p.date).toLocaleDateString()}</td>
+        <td>
+          <button class="btn btn-sm btn-danger-custom" data-action="deleteAffiliate" data-id="${p.id}"><i class="fas fa-trash"></i></button>
+          ${p.link ? `<a href="${this.escapeHtml(p.link)}" target="_blank" class="btn btn-sm btn-outline-custom"><i class="fas fa-external-link-alt"></i></a>` : ''}
+        </td>
+      </tr>
+    `).join('');
+  },
+
+  deleteAffiliate(e, target) {
+    const id = parseInt(target.dataset.id);
+    this.state.affiliateProducts = this.state.affiliateProducts.filter(p => p.id !== id);
+    localStorage.setItem('tv-affiliates', JSON.stringify(this.state.affiliateProducts));
+    this.renderAffiliates();
+    this.toast('Product removed', 'info');
+  },
+
+  renderCalendar(monthOffset = 0) {
+    const container = document.getElementById('calendarGrid');
+    if (!container) return;
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + monthOffset;
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const today = now.getDate();
+
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    let html = days.map(d => `<div class="cal-header">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += '<div></div>';
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isToday = d === today && monthOffset === 0;
+      const hasEvent = this.state.contentPlans.some(p => {
+        const pd = new Date(p.date);
+        return pd.getDate() === d && pd.getMonth() === month && pd.getFullYear() === year;
+      });
+      html += `<div class="cal-day ${isToday ? 'today' : ''} ${hasEvent ? 'has-event' : ''}" title="${hasEvent ? 'Has planned content' : ''}">${d}</div>`;
+    }
+    container.innerHTML = html;
+    const label = document.getElementById('calendarLabel');
+    if (label) label.textContent = new Date(year, month).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  },
+
+  saveContentPlan(e) {
+    const title = document.getElementById('planTitle')?.value?.trim();
+    if (!title) { this.toast('Enter a plan title', 'error'); return; }
+    const plan = {
+      id: Date.now(),
+      title,
+      type: document.getElementById('planType')?.value || 'blog',
+      date: document.getElementById('planDate')?.value || new Date().toISOString().split('T')[0],
+      status: document.getElementById('planStatus')?.value || 'idea',
+      notes: document.getElementById('planNotes')?.value?.trim() || '',
+      createdAt: new Date().toISOString()
+    };
+    this.state.contentPlans.unshift(plan);
+    localStorage.setItem('tv-plans', JSON.stringify(this.state.contentPlans));
+    this.renderPlans();
+    document.querySelectorAll('.plan-form input, .plan-form textarea, .plan-form select').forEach(el => el.value = '');
+    this.toast(`Planned: "${title}"`, 'success');
+  },
+
+  renderPlans() {
+    const container = document.getElementById('plansList');
+    if (!container) return;
+    if (this.state.contentPlans.length === 0) {
+      container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar"></i><p>No content planned yet.</p></div>';
+      return;
+    }
+    const statusColors = { idea: 'low', drafting: 'medium', scheduled: 'high', published: 'high' };
+    container.innerHTML = this.state.contentPlans.map(p => `
+      <div class="bookmark-item fade-in">
+        <div>
+          <div class="bookmark-title"><span class="opportunity-badge ${statusColors[p.status] || 'medium'}">${p.status}</span> ${this.escapeHtml(p.title)}</div>
+          <div class="bookmark-meta">${p.type} · ${new Date(p.date).toLocaleDateString()}</div>
+        </div>
+        <button class="btn btn-sm btn-danger-custom" data-action="deletePlan" data-id="${p.id}"><i class="fas fa-trash"></i></button>
+      </div>
+    `).join('');
+  },
+
+  deletePlan(e, target) {
+    const id = parseInt(target.dataset.id);
+    this.state.contentPlans = this.state.contentPlans.filter(p => p.id !== id);
+    localStorage.setItem('tv-plans', JSON.stringify(this.state.contentPlans));
+    this.renderPlans();
+    this.toast('Plan deleted', 'info');
+  },
+
+  clearSearchHistory() {
+    this.state.recentSearches = [];
+    localStorage.setItem('tv-recent-searches', '[]');
+    this.renderRecentSearches();
+    this.toast('Search history cleared', 'info');
+  },
+
+  exportBookmarks() {
+    const data = JSON.stringify(this.state.bookmarks, null, 2);
+    const blob = new Blob([data], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trendverse-bookmarks-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toast('Bookmarks exported!', 'success');
+  },
+
+  exportNotes() {
+    const text = this.state.notes.map(n => `[${new Date(n.date).toLocaleString()}]\n${n.text}\n`).join('\n---\n\n');
+    const blob = new Blob([text], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `trendverse-notes-${new Date().toISOString().split('T')[0]}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+    this.toast('Notes exported!', 'success');
+  }
+};
+
+document.addEventListener('DOMContentLoaded', () => App.init());

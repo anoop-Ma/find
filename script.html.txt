@@ -1,0 +1,144 @@
+al\Temp\opencode\TrendVerseAI\trends.html
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Explore trending topics across 35+ platforms including YouTube, TikTok, Instagram, Google, Amazon and more.">
+  <title>TrendVerse AI - Platform Trends</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📊</text></svg>">
+</head>
+<body style="display:none">
+  <nav class="navbar navbar-expand-lg navbar-trendverse">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="index.html"><i class="fas fa-chart-line"></i> TrendVerse AI</a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="mainNav">
+        <ul class="navbar-nav me-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+          <li class="nav-item"><a class="nav-link active" href="trends.html"><i class="fas fa-hashtag"></i> Trends</a></li>
+          <li class="nav-item"><a class="nav-link" href="hooks.html"><i class="fas fa-fire"></i> Hooks</a></li>
+          <li class="nav-item"><a class="nav-link" href="seo.html"><i class="fas fa-search-dollar"></i> SEO</a></li>
+          <li class="nav-item"><a class="nav-link" href="youtube.html"><i class="fab fa-youtube"></i> YouTube</a></li>
+          <li class="nav-item"><a class="nav-link" href="planner.html"><i class="fas fa-calendar"></i> Planner</a></li>
+          <li class="nav-item"><a class="nav-link" href="notes.html"><i class="fas fa-sticky-note"></i> Notes</a></li>
+          <li class="nav-item"><a class="nav-link" href="bookmarks.html"><i class="fas fa-bookmark"></i> Bookmarks</a></li>
+        </ul>
+        <button class="theme-toggle" onclick="App.toggleTheme()" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-4">
+    <div class="hero-section text-center py-4">
+      <h2 class="gradient-text">Social Media Discovery</h2>
+      <p>Search any keyword across 35+ platforms with one click</p>
+      <div class="search-container" style="max-width:500px;margin:0 auto">
+        <div class="input-group">
+          <span class="input-group-text"><i class="fas fa-search"></i></span>
+          <input type="text" class="form-control" id="globalSearch" placeholder="Enter keyword to search all platforms..." autocomplete="off">
+          <button class="btn-search" onclick="App.performSearch(document.getElementById('globalSearch').value)"><i class="fas fa-arrow-right"></i></button>
+        </div>
+      </div>
+    </div>
+
+    <div id="searchResults" style="display:none"></div>
+
+    <div class="mb-3 d-flex align-items-center gap-3 flex-wrap">
+      <span class="fw-bold"><i class="fas fa-filter"></i> Filter:</span>
+      <input type="text" class="form-control" style="max-width:250px;background:var(--bg-card);border:1px solid var(--border-color);border-radius:var(--radius-xs);padding:8px 14px;color:var(--text-primary)" placeholder="Search platforms..." id="platformFilter" oninput="filterPlatforms(this.value)">
+    </div>
+
+    <div class="platform-grid" id="platformGrid"></div>
+  </div>
+
+  <footer class="footer-trendverse"><div class="container"><p class="mb-0"><small>Click any platform button to open in a new tab with your keyword.</small></p></div></footer>
+
+  <div id="toastContainer" class="toast-container"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="script.js"></script>
+  <script>
+    const platforms = [
+      { name:'Google Search', icon:'fab fa-google', color:'#4285F4', id:'google' },
+      { name:'Google Trends', icon:'fas fa-chart-line', color:'#4285F4', id:'googletrends' },
+      { name:'Google News', icon:'fas fa-newspaper', color:'#4285F4', id:'googlenews' },
+      { name:'YouTube Search', icon:'fab fa-youtube', color:'#FF0000', id:'youtube' },
+      { name:'YouTube Trending', icon:'fab fa-youtube', color:'#FF0000', id:'youtubetrending' },
+      { name:'YouTube Shorts', icon:'fas fa-video', color:'#FF0000', id:'youtubeshorts' },
+      { name:'X (Twitter) Search', icon:'fab fa-twitter', color:'#1DA1F2', id:'twitter' },
+      { name:'X Explore', icon:'fas fa-hashtag', color:'#1DA1F2', id:'explore' },
+      { name:'Reddit Search', icon:'fab fa-reddit', color:'#FF4500', id:'reddit' },
+      { name:'Reddit Popular', icon:'fab fa-reddit', color:'#FF4500', id:'redditpopular' },
+      { name:'Quora Search', icon:'fab fa-quora', color:'#B92B27', id:'quora' },
+      { name:'Pinterest Search', icon:'fab fa-pinterest', color:'#E60023', id:'pinterest' },
+      { name:'TikTok Search', icon:'fab fa-tiktok', color:'#000000', id:'tiktok' },
+      { name:'Instagram Explore', icon:'fab fa-instagram', color:'#E4405F', id:'instagram' },
+      { name:'Facebook Search', icon:'fab fa-facebook', color:'#1877F2', id:'facebook' },
+      { name:'LinkedIn Search', icon:'fab fa-linkedin', color:'#0077B5', id:'linkedin' },
+      { name:'Amazon Search', icon:'fab fa-amazon', color:'#FF9900', id:'amazon' },
+      { name:'Amazon Best Sellers', icon:'fas fa-trophy', color:'#FF9900', id:'amazonbestsellers' },
+      { name:'Etsy Search', icon:'fab fa-etsy', color:'#F16521', id:'etsy' },
+      { name:'Etsy Trending', icon:'fas fa-fire', color:'#F16521', id:'etsytrending' },
+      { name:'eBay Search', icon:'fab fa-ebay', color:'#E53238', id:'ebay' },
+      { name:'AliExpress Search', icon:'fab fa-alipay', color:'#FF4747', id:'aliexpress' },
+      { name:'Temu Search', icon:'fas fa-shopping-bag', color:'#C41200', id:'temu' },
+      { name:'Shopify Stores', icon:'fab fa-shopify', color:'#7AB55C', id:'shopifystore' },
+      { name:'Product Hunt', icon:'fab fa-product-hunt', color:'#DA552F', id:'producthunt' },
+      { name:'Hacker News', icon:'fab fa-y-combinator', color:'#FF6600', id:'hackernews' },
+      { name:'GitHub Trending', icon:'fab fa-github', color:'#333333', id:'github' },
+      { name:'Medium Search', icon:'fab fa-medium', color:'#00AB6C', id:'medium' },
+      { name:'Dev.to', icon:'fab fa-dev', color:'#0A0A0A', id:'devto' },
+      { name:'Stack Overflow', icon:'fab fa-stack-overflow', color:'#F48024', id:'stackoverflow' },
+      { name:'Behance', icon:'fab fa-behance', color:'#1769FF', id:'behance' },
+      { name:'Dribbble', icon:'fab fa-dribbble', color:'#EA4C89', id:'dribbble' },
+      { name:'IMDb', icon:'fab fa-imdb', color:'#F5C518', id:'imdb' },
+      { name:'Spotify Charts', icon:'fab fa-spotify', color:'#1DB954', id:'spotify' },
+      { name:'Apple Podcasts', icon:'fas fa-podcast', color:'#8432E0', id:'applepodcasts' },
+      { name:'Twitch', icon:'fab fa-twitch', color:'#9146FF', id:'twitch' },
+      { name:'Steam', icon:'fab fa-steam', color:'#171A21', id:'steam' },
+      { name:'Google Play', icon:'fab fa-google-play', color:'#3DDC84', id:'googleplay' },
+      { name:'Apple App Store', icon:'fab fa-apple', color:'#555555', id:'appstore' }
+    ];
+
+    function filterPlatforms(val) {
+      const cards = document.querySelectorAll('.platform-card');
+      cards.forEach(c => {
+        const name = c.dataset.name.toLowerCase();
+        c.style.display = !val || name.includes(val.toLowerCase()) ? '' : 'none';
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const grid = document.getElementById('platformGrid');
+      grid.innerHTML = platforms.map(p => `
+        <div class="platform-card glass-card" data-name="${p.name}">
+          <div class="platform-header">
+            <div class="platform-icon" style="background:${p.color}"><i class="${p.icon}"></i></div>
+            <div>
+              <div class="platform-name">${p.name}</div>
+              <div class="text-muted" style="font-size:0.8rem">Click to search & open</div>
+            </div>
+          </div>
+          <div class="platform-actions">
+            <button class="btn btn-primary-custom btn-sm-custom" onclick="App.openPlatform(event, {dataset:{platform:'${p.id}'}})">
+              <i class="fas fa-search"></i> Search
+            </button>
+            <button class="btn btn-outline-custom btn-sm-custom" onclick="App.openPlatform(event, {dataset:{platform:'${p.id}'}})">
+              <i class="fas fa-external-link-alt"></i> Open
+            </button>
+            <button class="btn btn-outline-custom btn-sm-custom" onclick="App.state.currentKeyword = App.state.currentKeyword || 'trending'; App.addBookmark(event, {dataset:{keyword: App.state.currentKeyword}})">
+              <i class="far fa-bookmark"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    });
+  </script>
+</body>
+</html>
